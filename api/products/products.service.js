@@ -1,6 +1,8 @@
 const url = require("url");
 const queryString = require("querystring");
 const { readFileAndParse, writeFile } = require("../../utils.js");
+const path = require("path");
+const { deletedFromCloudinary } = require("../../config/cloudinary.config.js");
 
 const getAllProducts = async (req, res) => {
   const parsedUrl = url.parse(req.url);
@@ -27,15 +29,14 @@ const addNewProduct = async (req, res) => {
     item,
     price: Number(price),
     description,
+    pictures: req.file?.path,
     createAt: new Date().toISOString(),
     updateAt: new Date().toISOString(),
   };
 
-  const addedProduct = products.push(newProduct);
+  products.push(newProduct);
   await writeFile("products.json", JSON.stringify(products));
-  res
-    .status(201)
-    .json({ message: "product added sucessfully", data: addedProduct });
+  res.status(201).json({ message: "product added sucessfully" });
 };
 
 const getProductById = async (req, res) => {
@@ -58,6 +59,11 @@ const deleteProduct = async (req, res) => {
     return res.status(404).json({ error: "products not found" });
   }
 
+  const fileName = products[index].pictures.split("uploads/")[1];
+  const fileId = fileName.split(".")[0];
+  const publicFileId = `uploads/${fileId}`;
+  await deletedFromCloudinary(publicFileId);
+
   const deletedProduct = products.splice(index, 1);
   await writeFile("products.json", JSON.stringify(products));
   return res
@@ -68,23 +74,39 @@ const deleteProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   const id = Number(req.params.id);
   const products = await readFileAndParse("products.json", true);
+
   const index = products.findIndex((el) => el.id === id);
   if (index === -1) {
+    if (req.file?.path) {
+      const publicId = req.file.path.split("/").pop().split(".")[0];
+      await deletedFromCloudinary(`uploads/${publicId}`);
+    }
+    // ეს if იმიტომ ჩავამატე რომ როდესაც პროდუქტის არარსებულ აიდზე ფოტოს განახლება დაგვჭირდებოდა ქვემოთ
+    // არსებული ერორი გამოჰქონდა თუმცა ფოტოს ახლიდან ტვირთავდა ქლაუდინარზე, ამიტომ ეს publicId ჰქყოფს
+    // ყველას სლეშზე და ბოლო ფოფით მისმართს რაზეც ფოტოა იმას სპლიტავს და მაგ ადგილს ვშლი.
+    // ანუ თუ განახლების დროს არარსებულ აიდს მივუთითებთ, როგორც აიტვირთება ისე წაიშლება ქლაუიდნარიდან.
+
     return res.status(404).json({ error: "products not found" });
+  }
+
+  if (req.file?.path && products[index].pictures) {
+    const fileName = products[index].pictures.split("uploads/")[1];
+    const fileId = fileName.split(".")[0];
+    const publicFileId = `uploads/${fileId}`;
+
+    await deletedFromCloudinary(publicFileId);
   }
 
   products[index] = {
     ...products[index],
-    item: req.body?.item,
-    price: req.body?.price,
-    description: req.body?.description,
-    updateAt: new Date().toISOString,
+    item: req.body?.item || products[index].item,
+    price: req.body?.price || products[index].price,
+    description: req.body?.description || products[index].description,
+    pictures: req.file?.path || products[index].pictures,
+    updateAt: new Date().toISOString(),
   };
 
-  const updatedProduct = await writeFile(
-    "products.json",
-    JSON.stringify(products)
-  );
+  await writeFile("products.json", JSON.stringify(products));
   res
     .status(200)
     .json({ message: "product updated successfully", data: products[index] });

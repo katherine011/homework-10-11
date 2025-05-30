@@ -24,3 +24,13 @@
 
 // 5) Create a /random-fact route that returs some random fact about anything that you want,
 //  create a middleware that adds to random route and randomly half of request blocks and half of requests pass.
+
+//////////////////// 12
+
+// 1) add image upload using multer and cloudinary
+
+// 2) add validation to upload max 3 mb of image
+
+// 3) when you edit image each expense you should delete prev image from cloudinary
+
+// 4) when you delete expense you also should delete this image from clodinary.
