@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update</title>
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <%- include("../partials/header") %>
+    <div class="create">
+      <form
+        action="/api/products/<%= product.id %>/update"
+        method="post"
+        class="form"
+        enctype="multipart/form-data"
+      >
+        <h1>Create new user</h1>
+        <input type="text" name="item" value="<%= product.item %>" />
+        <input type="text" name="price" value="<%= product.price %>" />
+        <input
+          type="text"
+          name="description"
+          value="<%= product.description %>"
+        />
+        <label for="pictures">Change Picture</label>
+        <input type="file" name="pictures" id="pictures" class="pic" />
+        <% if (product.pictures) { %>
+        <img
+          src="<%= product.pictures %>"
+          alt="picture"
+          width="250"
+          height="250"
+        />
+        <% } %>
+        <div class="btn">
+          <button>Update</button>
+          <button>
+            <a href="/api/products">Cancel</a>
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

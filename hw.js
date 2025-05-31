@@ -34,3 +34,19 @@
 // 3) when you edit image each expense you should delete prev image from cloudinary
 
 // 4) when you delete expense you also should delete this image from clodinary.
+
+//////////////////// 12
+
+// 1) your expenses app should add EJS support.
+// 2) you should have 4 page, all expenses, create new expanses, updateExpenses and details page.
+// 3) you should display all expenses image in the dom.
+// 4) you should add image upload feature in the create expenses page *.
+// 5) you should delete images from cloudinary when you delete or update expense.
+
+// HINT: how to send image from EJS
+//  <form action="/upload" method="POST" enctype="multipart/form-data">
+//     <input type="text" name="username" placeholder="Enter your name" required />
+//     <input type="email" name="email" placeholder="Enter your email" required />
+//     <input type="file" name="avatar" accept="image/*" required />
+//     <button type="submit">Upload</button>
+//   </form>

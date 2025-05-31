@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homepage</title>
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <%- include("../partials/header") %>
+    <div class="cards">
+      <% products.forEach(el => { %>
+      <div class="card">
+        <img src="<%= el.pictures %>" alt="pictures" width="180" height="160" />
+        <h1>Item: <%= el.item %></h1>
+        <h1>Price: <%= el.price %></h1>
+        <h1>Description: <%= el.description %></h1>
+
+        <a class="a" href="/api/products/<%= el.id %>/details">Details</a>
+        <div class="btn">
+          <button>
+            <a href="/api/products/<%= el.id %>/update">Update</a>
+          </button>
+
+          <form action="/api/products/<%= el.id %>/delete" method="post">
+            <button class="dlt">Delete</button>
+          </form>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </body>
+</html>

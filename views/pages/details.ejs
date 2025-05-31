@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details</title>
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <%- include("../partials/header") %>
+    <div class="create">
+      <button class="back"><a href="/api/products">Back</a></button>
+      <div class="details">
+        <img
+          src="<%= product.pictures %>"
+          alt="picture"
+          width="270"
+          height="250"
+        />
+        <h1>Item: <%= product.item %></h1>
+        <h1>Price: <%= product.price %></h1>
+        <h1>Description: <%= product.description %></h1>
+      </div>
+    </div>
+  </body>
+</html>

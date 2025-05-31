@@ -5,16 +5,18 @@ const {
   addNewProduct,
   deleteProduct,
   editProduct,
+  createNewproducts,
+  updateProduct,
+  productsDetails,
 } = require("./products.service.js");
 const requiredFields = require("../middleWare/requiredFields.js");
-const hasAccess = require("../middleWare/hasAccess.js");
 const { upload } = require("../../config/cloudinary.config.js");
 
 const productsRoute = Router();
 
 productsRoute.get("/", getAllProducts);
 
-productsRoute.get("/:id", getProductById);
+productsRoute.get("/", getProductById);
 
 productsRoute.post(
   "/",
@@ -23,8 +25,14 @@ productsRoute.post(
   addNewProduct
 );
 
-productsRoute.delete("/:id", hasAccess, deleteProduct);
+productsRoute.get("/create", createNewproducts);
 
-productsRoute.put("/:id", upload.single("pictures"), editProduct);
+productsRoute.post("/:id/delete", deleteProduct);
+
+productsRoute.post("/:id/update", upload.single("pictures"), editProduct);
+
+productsRoute.get("/:id/update", updateProduct);
+
+productsRoute.get("/:id/details", productsDetails);
 
 module.exports = productsRoute;

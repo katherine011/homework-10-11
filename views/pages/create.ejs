@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>create products</title>
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
+  <body>
+    <%- include("../partials/header") %>
+    <div class="create">
+      <form
+        action="/api/products"
+        method="post"
+        enctype="multipart/form-data"
+        class="createForm"
+      >
+        <h1>Create new user</h1>
+        <input type="text" name="item" placeholder="Item" required />
+        <input type="text" name="price" placeholder="Price" required />
+        <input type="file" name="pictures" accept="image/*" required />
+        <input
+          type="text"
+          name="description"
+          placeholder="Description"
+          required
+        />
+        <div class="btn">
+          <button>Create</button>
+          <button>
+            <a href="/api/products">Cancel</a>
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

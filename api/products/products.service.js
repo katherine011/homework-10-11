@@ -1,28 +1,17 @@
-const url = require("url");
-const queryString = require("querystring");
 const { readFileAndParse, writeFile } = require("../../utils.js");
 const path = require("path");
 const { deletedFromCloudinary } = require("../../config/cloudinary.config.js");
 
 const getAllProducts = async (req, res) => {
-  const parsedUrl = url.parse(req.url);
-  const query = queryString.parse(parsedUrl.query);
-
-  let page = Number(query.page) || 1;
-  let take = Number(query.take) || 30;
-  take = Math.min(30, take);
-
-  const start = (page - 1) * take;
-  const end = take * page;
-
   const products = await readFileAndParse("products.json", true);
-  res.end(JSON.stringify(products.slice(start, end)));
+
+  res.render("pages/home.ejs", { products });
 };
 
 const addNewProduct = async (req, res) => {
   const { item, price, description } = req.body;
-
   const products = await readFileAndParse("products.json", true);
+
   const lastId = products[products.length - 1]?.id || 0;
   const newProduct = {
     id: lastId + 1,
@@ -36,7 +25,12 @@ const addNewProduct = async (req, res) => {
 
   products.push(newProduct);
   await writeFile("products.json", JSON.stringify(products));
-  res.status(201).json({ message: "product added sucessfully" });
+
+  res.redirect("/api/products");
+};
+
+const createNewproducts = async (req, res) => {
+  res.render("pages/create.ejs");
 };
 
 const getProductById = async (req, res) => {
@@ -45,9 +39,10 @@ const getProductById = async (req, res) => {
 
   const index = products.findIndex((el) => el.id === id);
   if (index === -1) {
-    return res.status(404).json({ error: "products not found" });
+    return res.send("product not found");
   }
-  res.json(products[index]);
+
+  res.render("pages/create.ejs");
 };
 
 const deleteProduct = async (req, res) => {
@@ -56,7 +51,7 @@ const deleteProduct = async (req, res) => {
 
   const index = products.findIndex((el) => el.id === id);
   if (index === -1) {
-    return res.status(404).json({ error: "products not found" });
+    return res.send("Products Not Found");
   }
 
   const fileName = products[index].pictures.split("uploads/")[1];
@@ -64,11 +59,10 @@ const deleteProduct = async (req, res) => {
   const publicFileId = `uploads/${fileId}`;
   await deletedFromCloudinary(publicFileId);
 
-  const deletedProduct = products.splice(index, 1);
+  products.splice(index, 1);
   await writeFile("products.json", JSON.stringify(products));
-  return res
-    .status(201)
-    .json({ message: "product deleted successfully", data: deletedProduct });
+
+  res.redirect("/api/products");
 };
 
 const editProduct = async (req, res) => {
@@ -81,12 +75,8 @@ const editProduct = async (req, res) => {
       const publicId = req.file.path.split("/").pop().split(".")[0];
       await deletedFromCloudinary(`uploads/${publicId}`);
     }
-    // ეს if იმიტომ ჩავამატე რომ როდესაც პროდუქტის არარსებულ აიდზე ფოტოს განახლება დაგვჭირდებოდა ქვემოთ
-    // არსებული ერორი გამოჰქონდა თუმცა ფოტოს ახლიდან ტვირთავდა ქლაუდინარზე, ამიტომ ეს publicId ჰქყოფს
-    // ყველას სლეშზე და ბოლო ფოფით მისმართს რაზეც ფოტოა იმას სპლიტავს და მაგ ადგილს ვშლი.
-    // ანუ თუ განახლების დროს არარსებულ აიდს მივუთითებთ, როგორც აიტვირთება ისე წაიშლება ქლაუიდნარიდან.
 
-    return res.status(404).json({ error: "products not found" });
+    return res.send("products not found");
   }
 
   if (req.file?.path && products[index].pictures) {
@@ -107,9 +97,25 @@ const editProduct = async (req, res) => {
   };
 
   await writeFile("products.json", JSON.stringify(products));
-  res
-    .status(200)
-    .json({ message: "product updated successfully", data: products[index] });
+  res.redirect("/api/products");
+};
+
+const updateProduct = async (req, res) => {
+  const id = Number(req.params.id);
+  const products = await readFileAndParse("products.json", true);
+  const product = products.find((el) => el.id === id);
+  if (!product) return res.send("product not found");
+
+  res.render("pages/update.ejs", { product });
+};
+
+const productsDetails = async (req, res) => {
+  const id = Number(req.params.id);
+  const products = await readFileAndParse("products.json", true);
+  const product = products.find((el) => el.id === id);
+  if (!product) return res.send("product not found");
+
+  res.render("pages/details.ejs", { product });
 };
 
 module.exports = {
@@ -118,4 +124,7 @@ module.exports = {
   deleteProduct,
   editProduct,
   getProductById,
+  createNewproducts,
+  updateProduct,
+  productsDetails,
 };
